@@ -1,2 +1,8 @@
-# cms_project
-This is our git-repo with our yaml files for the aws project in 346
+# Introduction
+
+In diesem Git-Repo befinden sich alle Dateien die benötigt werden, um eine Aws-Instanz mit wordpress zum laufen zu bringen. 
+Hinzu haben wir alle Testfälle sauber dokumentiert in einem Markdown-file
+
+# Overview
+
+

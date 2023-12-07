@@ -1,0 +1,16 @@
+#cloud-config
+packages:
+  - httpd
+  - php
+  - mysql
+  - php-mysql
+
+runcmd:
+  - systemctl start httpd
+  - systemctl enable httpd
+  - yum install -y https://wordpress.org/latest.tar.gz
+  - tar -zxvf latest.tar.gz -C /var/www/html/
+  - cp /var/www/html/wordpress/wp-config-sample.php /var/www/html/wordpress/wp-config.php
+  - chown -R apache:apache /var/www/html/wordpress/
+  - chmod -R 755 /var/www/html/wordpress/
+  - systemctl restart httpd
