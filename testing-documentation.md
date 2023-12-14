@@ -25,7 +25,7 @@ Diese Datei wird benötigt um bei der Konfiguration der EC2 Instanz, die Install
 ## Testfall1
 
 ![]()<img src="./Testfall1 .png" width="1500" height="450">
-Wie auf dem Bild ersichtlich, wollten wir auf das File "test.sh" zugreifen was aber nicht ganz funktionierte.
+Wie auf dem Bild ersichtlich, wollten wir am 13.12.2023 auf das File "test.sh" zugreifen was aber nicht ganz funktionierte.
 Uns wurde nach der Abfrage des Pfads gefragt, ob wir sicher seien.
 Der Fehler Lag im Script "initialize_wp.sh" Zeile,68. Es fehlten Anführungs- und Schlusszeichen beim Code ( mv "$PATH_APACHE" ).
 Nach der änderung, verlief alles einwandfrei.
