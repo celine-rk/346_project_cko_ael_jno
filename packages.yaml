@@ -4,13 +4,29 @@ packages:
   - php
   - mysql
   - php-mysql
+  - wordpress
 
 runcmd:
   - systemctl start httpd
   - systemctl enable httpd
+  - systemctl enable mysql
+  - systemctl start mysql
   - yum install -y https://wordpress.org/latest.tar.gz
   - tar -zxvf latest.tar.gz -C /var/www/html/
   - cp /var/www/html/wordpress/wp-config-sample.php /var/www/html/wordpress/wp-config.php
   - chown -R apache:apache /var/www/html/wordpress/
   - chmod -R 755 /var/www/html/wordpress/
   - systemctl restart httpd
+
+  write_files:
+  - path: /var/www/html/wp-config.php
+    content: |
+      <?php
+      define('DB_NAME', 'wordpress');
+      define('DB_USER', 'wpuser');
+      define('DB_PASSWORD', 'wppassword');
+      define('DB_HOST', 'internal-db-ip');   
+
+      // ... Weitere WordPress-Konfiguration ...
+    owner: www-data:www-data
+    permissions: '0644'
