@@ -33,6 +33,9 @@ DB_SECURITY_GROUP="db-sec-group"
 DB_INSTANCE_NAME="DB-Wordpress"
 WP_INSTANCE_NAME="WP-Webserver"
 
+# private ip für db instanz
+DB_PRIVATE_IP="172.31.64.10"
+
 # Erster Check, ob AWS CLI installiert ist
 if command -v aws &> /dev/null; then
     echo -e "AWS CLI is installed. $GREEN NEXT STEP: $NOCOLOR initializing instances for wordpress."
@@ -72,10 +75,11 @@ aws ec2 authorize-security-group-ingress --group-name "$WP_SECURITY_GROUP" --pro
 aws ec2 create-security-group --group-name "$DB_SECURITY_GROUP" --description "EC2-database"
 aws ec2 authorize-security-group-ingress --group-name "$DB_SECURITY_GROUP" --protocol tcp --port 3306 --source-group "$WP_SECURITY_GROUP"
 
-# AWS EC2-Datenbankinstanz erstellen
-aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" \
-  --key-name "$KEY_NAME" --security-group "$DB_SECURITY_GROUP" --user-data file://cloudconfig-db.yaml \
-  --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$DB_INSTANCE_NAME}]" 
+# Elastic Network Interface (ENI) für die Datenbank-Instanz erstellen
+ENI_ID=$(aws ec2 create-network-interface --subnet-0fcde7cae9536c1ab --private-ip-address "$DB_PRIVATE_IP" --query 'NetworkInterface.NetworkInterfaceId' --output text)
+
+# AWS EC2-Datenbankinstanz erstellen und ENI zuweisen
+aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" --key-name "$KEY_NAME" --security-group "$DB_SECURITY_GROUP" --network-interfaces "NetworkInterfaceId=$ENI_ID,DeviceIndex=0" --user-data file://cloudconfig-db.yaml --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$DB_INSTANCE_NAME}]" 
 
 # ID der Datenbankinstanz abrufen
 DB_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$DB_INSTANCE_NAME" --query 'Reservations[0].Instances[0].InstanceId' --output text --region "$REGION")
@@ -87,9 +91,7 @@ aws ec2 wait instance-running --instance-ids "$DB_INSTANCE_ID" --region "$REGION
 DB_INTERNAL_IP=$(aws ec2 describe-instances --instance-ids "$DB_INSTANCE_ID" --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text --region "$REGION")
 
 # AWS Webserver/WordPress-Instanz erstellen
-aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" \
-  --key-name "$KEY_NAME" --security-group "$WP_SECURITY_GROUP" --user-data file://cloudconfig-web.yaml \
-  --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$WP_INSTANCE_NAME}]"
+aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" --key-name "$KEY_NAME" --security-group "$WP_SECURITY_GROUP" --user-data file://cloudconfig-web.yaml --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$WP_INSTANCE_NAME}]"
 
 # ID der Webserverinstanz abrufen
 WP_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$WP_INSTANCE_NAME" --query 'Reservations[0].Instances[0].InstanceId' --output text --region "$REGION")
@@ -101,3 +103,6 @@ aws ec2 wait instance-running --instance-ids "$WP_INSTANCE_ID" --region "$REGION
 WPPUBLICIP=$(aws ec2 describe-instances --instance-ids "$WP_INSTANCE_ID" --query 'Reservations[0].Instances[0].PublicIpAddress' --output text --region "$REGION")
 
 echo "WordPress-Instanz erstellt. Öffne http://$WPPUBLICIP im Browser, um die Konfiguration abzuschließen."
+
+
+

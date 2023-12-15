@@ -23,7 +23,7 @@ runcmd:
       define('DB_NAME', 'wordpress');
       define('DB_USER', 'wpuser');
       define('DB_PASSWORD', 'Riethuesli>12345');
-      define('DB_HOST', 'internal-db-ip');   
+      define('DB_HOST', '172.31.20.189');   
 
     owner: www-data:www-data
     permissions: '0644'

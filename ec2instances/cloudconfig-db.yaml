@@ -6,7 +6,7 @@ write_files:
   - path: /etc/mysql/mariadb.conf.d/50-server.cnf
     content: |
       [mysqld]
-      bind-address = 0.0.0.0  # Erlaubt externe Verbindungen
+      bind-address = 172.31.64.10
       skip-networking = false  # Aktiviert die Netzwerkunterstützung
       log-error = /var/log/mysql/error.log
 
