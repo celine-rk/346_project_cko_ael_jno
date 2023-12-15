@@ -1,0 +1,25 @@
+#cloud-config
+packages:
+  - mariadb-server
+
+write_files:
+  - path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    content: |
+      [mysqld]
+      bind-address = 0.0.0.0  # Erlaubt externe Verbindungen
+      skip-networking = false  # Aktiviert die Netzwerkunterstützung
+      log-error = /var/log/mysql/error.log
+
+runcmd:
+  - systemctl restart mariadb
+
+  # Erstellen eines sicheren Root-Passworts
+  - MYSQL_ROOT_PASSWORD=$(openssl rand -base64 12 | tr -d /=+ | cut -c1-16)
+  - mysqladmin -u root password "$MYSQL_ROOT_PASSWORD"
+
+  # MySQL-Befehle ausführen, um einen zusätzlichen Benutzer mit Zugriffsberechtigungen zu erstellen
+  - mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "CREATE USER 'wpuser'@'%' IDENTIFIED BY '*LjPFM52T#RbximEEfTNH$AT';"
+  - mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL PRIVILEGES ON *.* TO 'wpuser'@'%';"
+  - mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "FLUSH PRIVILEGES;"
+
+final_message: "Datenbank-Instanz wurde konfiguriert. Root-Passwort: $MYSQL_ROOT_PASSWORD"

@@ -1,16 +1,14 @@
 #cloud-config
+
 packages:
-  - httpd
-  - php
-  - mysql
-  - php-mysql
   - wordpress
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
 
 runcmd:
-  - systemctl start httpd
+  - systemctl start httpd 
   - systemctl enable httpd
-  - systemctl enable mysql
-  - systemctl start mysql
   - yum install -y https://wordpress.org/latest.tar.gz
   - tar -zxvf latest.tar.gz -C /var/www/html/
   - cp /var/www/html/wordpress/wp-config-sample.php /var/www/html/wordpress/wp-config.php
@@ -19,28 +17,12 @@ runcmd:
   - systemctl restart httpd
 
   write_files:
-  - path: /etc/apache2/sites-available/000-default.conf
-    content: |
-      <VirtualHost *:80>
-        ServerAdmin webmaster@localhost
-        DocumentRoot /var/www/html
-
-        ErrorLog ${APACHE_LOG_DIR}/error.log
-        CustomLog ${APACHE_LOG_DIR}/access.log combined
-
-        <Directory /var/www/html/>
-          AllowOverride All
-        </Directory>
-      </VirtualHost>
-    owner: root:root
-    permissions: '0644'
-    
   - path: /var/www/html/wp-config.php
     content: |
       <?php
       define('DB_NAME', 'wordpress');
       define('DB_USER', 'wpuser');
-      define('DB_PASSWORD', 'wppassword');
+      define('DB_PASSWORD', 'Riethuesli>12345');
       define('DB_HOST', 'internal-db-ip');   
 
     owner: www-data:www-data
