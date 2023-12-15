@@ -1,4 +1,4 @@
-#cloud-config
+# acloud-config
 packages:
   - mariadb-server
 

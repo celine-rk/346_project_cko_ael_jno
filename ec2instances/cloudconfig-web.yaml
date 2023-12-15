@@ -1,14 +1,15 @@
-#cloud-config
-
+# cloud-config
+# wordpress reicht aus weil weitere packages die benötigt werden als dependencies sooderso heruntergeladen werden 
 packages:
   - wordpress
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
+timezone: Europe/Zurich
 
 runcmd:
-  - systemctl start httpd 
   - systemctl enable httpd
+  - systemctl start httpd 
   - yum install -y https://wordpress.org/latest.tar.gz
   - tar -zxvf latest.tar.gz -C /var/www/html/
   - cp /var/www/html/wordpress/wp-config-sample.php /var/www/html/wordpress/wp-config.php
