@@ -16,7 +16,12 @@ runcmd:
   - chown -R apache:apache /var/www/html/wordpress/
   - chmod -R 755 /var/www/html/wordpress/
   - systemctl restart httpd
-
+  # WP Konfigurationsschritte
+  - sed -i "s/database_name_here/wordpress/" /var/www/html/wordpress/wp-config.php
+  - sed -i "s/username_here/wpuser/" /var/www/html/wordpress/wp-config.php
+  - sed -i "s/password_here/Riethuesli>12345/" /var/www/html/wordpress/wp-config.php
+  - sed -i "s/localhost/172.31.20.189/" /var/www/html/wordpress/wp-config.php
+  - wp --allow-root core install --url=http://public-ip --title="Your Site" --admin_user=admin --admin_password=admin_password --admin_email=admin@example.com
   write_files:
   - path: /var/www/html/wp-config.php
     content: |
