@@ -46,3 +46,18 @@ Diesen Fehler hätte ich umgehen können, indem sich die Datei bereits im Ordner
 
 ## Testfall3
 ![]()<img src="./Testfall3.png" width="900" height="300">
+
+# DB-Secgroup in Netzwerkinterface
+
+In diesem Bash-Skript wird eine Elastic Network Interface (ENI) für eine Datenbankinstanz in Amazon Web Services (AWS) erstellt.
+
+![image](https://github.com/celine-rk/346_project_cko_ael_jno/assets/125896662/74808cf0-4731-49f6-b47d-2e2d97d69af7)
+
+Das Skript beginnt mit einer Meldung, die mithilfe von echo -e auf der Konsole ausgegeben wird. Dabei wird vermutlich die Farbformatierung genutzt, wobei $GREEN und $NOCOLOR vordefinierte Farbcodes repräsentieren. Diese Meldung gibt Auskunft darüber, dass eine Netzwerkschnittstelle für eine Datenbankinstanz erstellt wird.
+
+Die ENI wird mithilfe des AWS Command Line Interface (CLI) Befehls aws ec2 create-network-interface erstellt. Hierbei werden Parameter wie die Subnetz-ID (--subnet-id), die private IP-Adresse (--private-ip-address), und die Sicherheitsgruppen (--groups) angegeben. Die Ausgabe dieses Befehls wird mit --query gefiltert, um nur die ID der erstellten ENI zu extrahieren, und dann wird sie in der Variable ENI_ID gespeichert.
+
+Wichtig ist, dass dieser Code-Abschnitt nicht den gesamten Prozess abdeckt. Üblicherweise würde im Anschluss eine AWS EC2-Datenbankinstanz erstellt und die zuvor erstellte ENI dieser Instanz zugewiesen werden. Der entsprechende Code dafür fehlt jedoch in der bereitgestellten Information.
+
+
+
