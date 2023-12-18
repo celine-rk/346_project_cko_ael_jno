@@ -128,7 +128,7 @@ aws ec2 describe-instances --instance-ids i-0f18aac3467632dbb --query 'Reservati
 
 Hierbei wird die Instanz-ID "i-0f18aac3467632dbb" direkt angegeben, und der Befehl versucht, die private IP-Adresse dieser Instanz abzurufen. Ähnlich wie beim ersten Befehl wird durch --query und --output text festgelegt, dass nur die private IP-Adresse angezeigt wird. Auch dieser Befehl wird in der Region "us-east-1" ausgeführt.
 
-Zusammenfassend werden diese Befehle verwendet, um spezifische Informationen über eine EC2-Instanz mit dem Tag "DB-Wordpress" zu sammeln. Der erste Befehl dient dazu, die Instanz-ID zu identifizieren, während der zweite Befehl die private IP-Adresse dieser Instanz abruft. Es ist wichtig, dass die Werte wie die Instanz-ID und der Tag korrekt angepasst werden, um auf die entsprechenden Ressourcen zuzugreifen.
+Diese Befehle werden verwendet, um spezifische Informationen über eine EC2-Instanz mit dem Tag "DB-Wordpress" zu sammeln. Der erste Befehl dient dazu, die Instanz-ID zu identifizieren, während der zweite Befehl die private IP-Adresse dieser Instanz abruft. Es ist wichtig, dass die Werte wie die Instanz-ID und der Tag korrekt angepasst werden, um auf die entsprechenden Ressourcen zuzugreifen.
 
 
 
