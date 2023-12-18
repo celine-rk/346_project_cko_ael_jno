@@ -73,7 +73,19 @@ Der Hauptteil des Skripts enthält den Befehl zur ENI-Erstellung. Dabei wird die
 
 Dieser Code-Ausschnitt erstellt nur die ENI, nicht jedoch die gesamte Datenbankinstanz. In einem vollständigen Skript würden nach diesem Schritt weitere Befehle folgen, um die Datenbankinstanz zu erstellen und die erstellte ENI dieser Instanz zuzuweisen.
 
+## EC2-Instanzinformationen
 
+In diesem Screenshot wurde eine neue AWS EC2-Instanz erstellt, um Ressourcen in der Cloud zu nutzen. AWS bietet eine umfassende Dokumentation, aber diese kann aufgrund ihrer Tiefe und Komplexität schwierig zu navigieren sein. Es erfordert Zeit und Aufmerksamkeit, um die richtigen Informationen zu finden.
+
+![image](https://github.com/celine-rk/346_project_cko_ael_jno/assets/125896662/913c2785-4823-440c-af0d-29532e33925e)
+
+Die Instanz wurde am 15. Dezember 2023 um 14:36:27 UTC erstellt. Derzeit befindet sie sich im Status "pending", da sie noch startet. Die Instanz ist ein virtueller Server in der Cloud mit einer eindeutigen Instanz-ID.
+
+Die Instanz wurde in einem bestimmten Subnetz und einer virtuellen privaten Cloud (VPC) platziert. Die private IP-Adresse der Instanz lautet 172.31.19.55, und ihr privater DNS-Name ist "ip-172-31-19-55.ec2.internal". Sie wurde in der Verfügbarkeitszone "us-east-1d" eingerichtet.
+
+Zur Instanz gehört eine Netzwerkschnittstelle (ENI), die mit einem bestimmten Geräteindex verbunden ist. Diese Schnittstelle wird automatisch gelöscht, wenn die Instanz beendet wird.
+
+Um die Konfiguration der Instanz abzuschließen, öffne deinen Webbrowser und navigiere zur öffentlichen IP-Adresse der Instanz. Aktuell lautet diese IP-Adresse [Instanz-Public-IP].
 
 
 
