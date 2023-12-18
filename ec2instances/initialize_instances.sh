@@ -114,15 +114,16 @@ aws ec2 wait instance-running --instance-ids "$WP_INSTANCE_ID" --region "$REGION
 # Öffentliche IP der Webserverinstanz abrufen
 WPPUBLICIP=$(aws ec2 describe-instances --instance-ids "$WP_INSTANCE_ID" --query 'Reservations[0].Instances[0].PublicIpAddress' --output text --region "$REGION")
 
-# Public IP exportieren, damit es im cloudconfig-web verwendet werden kann
-export WPPUBLICIP="$WPPUBLICIP"
-
 # Ende und Ausgabe der öffentlichen IP zur Wordpress Seite
-echo -e "WordPress-Instanz erstellt. Öffne $GREEN http://$WPPUBLICIP $NOCOLOR im Browser, um die Konfiguration abzuschließen."
+echo -e "Die Reihenfolge der Befehle ist wichtig! Die Verbindung zwischen der Webserver-Instanz und der DB-Instanz kann nur geprüft werden, wenn eine $GREEN SSH-Verbindung $NOCOLOR auf den $GREEN Webserver $NOCOLOR erfolgte"
 
-# Datenbank Verbindung zu Webserver herstellen
-echo -e "Datenbank-Instanz wurde erstellt. Über folgenden Befehl mysql -h $GREEN $DB_PRIVATE_IP $NOCOLOR -u $GREEN wpuser $NOCOLOR -p" # -p mit PW von wpuser variable aus cloudconfig-db ergänzen
+echo -e "WordPress-Instanz erstellt. Öffne $GREEN http://$WPPUBLICIP $NOCOLOR im Browser, um die Konfiguration abzuschließen."
 
 # SSH Verbindungen zu Instanzen
 echo -e "Eine Verbindung zur Webserver-Instanz via ssh kann wie folgt vorgenommen werden: ssh -i ~/.ssh/$KEY_NAME.pem ubuntu@$WPPUBLICIP"
+
+# Datenbank Verbindung zu Webserver herstellen reihenfolge wechseln
+echo -e "Datenbank-Instanz wurde erstellt. Über folgenden Befehl kann die Kommunikation von Webserver zu DB geprüft werden: mysql -h $GREEN $DB_PRIVATE_IP $NOCOLOR -u $GREEN wpuser $NOCOLOR -p" 
+echo -e "Das PW für $BOLD wpuser $REGULAR lautet: X4#L6LwrN4V!w4&m^6pH98Li " 
+
 echo -e "Eine Verbindung zur Datenbank-Instanz via ssh kann wie folgt vorgenommen werden: ssh -i ~/.ssh/$KEY_NAME.pem ubuntu@$DB_PRIVATE_IP"

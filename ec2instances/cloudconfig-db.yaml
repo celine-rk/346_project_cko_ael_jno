@@ -6,7 +6,7 @@ write_files:
   - path: /etc/mysql/mariadb.conf.d/50-server.cnf
     content: |
       [mysqld]
-      bind-address = 172.31.20.189 # kann ich die variable der privaten ip vom bash script übernehmen ? ist immer die selbe da ich ein von aws zur verfügung gestelltes netz nehme und immer die selbe private ip angebe
+      bind-address = 172.31.20.189 
       log-error = /var/log/mysql/error.log
 
 runcmd:
@@ -16,11 +16,8 @@ runcmd:
   - MYSQL_ROOT_PASSWORD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 54)
   - mysqladmin -u root password "$MYSQL_ROOT_PASSWORD"
 
-  # Erstellen eines sicheren Passworts für den zweiten User (non-root)
-  - MYSQL_USER_PASSWORD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 54)
-
   # MySQL-Befehle ausführen, um einen zusätzlichen Benutzer mit Zugriffsberechtigungen zu erstellen
-  - mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "CREATE USER 'wpuser'@'%' IDENTIFIED BY '$MYSQL_USER_PASSWORD';" oder db-instance ip direkt angeben 
+  - mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "CREATE USER 'wpuser'@'%' IDENTIFIED BY 'X4#L6LwrN4V!w4&m^6pH98Li';"
   - mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL PRIVILEGES ON *.* TO 'wpuser'@'%';"
   - mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "FLUSH PRIVILEGES;"
 
