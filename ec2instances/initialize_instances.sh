@@ -65,7 +65,7 @@ fi
 
 # Erstellen des SSH-Schlüsselpaars
 echo -e "Creating a new SSH key-pair..."
-aws ec2 create-key-pair --key-name "$KEY_NAME" --key-type rsa --query "KeyMaterial" --output text > "$KEY_NAME.pem"
+aws ec2 create-key-pair --key-name "$KEY_NAME" --key-type rsa --query "KeyMaterial" --output text > "~/.ssh/$KEY_NAME.pem"
 
 # Sicherheitsgruppen für die Webserver-Instanz erstellen
 echo -e "Creating $GREEN webserver security group $NOCOLOR..."
@@ -121,5 +121,8 @@ export WPPUBLICIP="$WPPUBLICIP"
 echo -e "WordPress-Instanz erstellt. Öffne $GREEN http://$WPPUBLICIP $NOCOLOR im Browser, um die Konfiguration abzuschließen."
 
 # Datenbank Verbindung zu Webserver herstellen
-echo -e "Datenbank-Instanz wurde erstellt. Über folgenden Befehl mysql -h $GREEN $DB_PRIVATE_IP $NOCOLOR -u $GREEN wpuser $NOCOLOR -p"
-echo -e "Hint for PW: GBS standard"
+echo -e "Datenbank-Instanz wurde erstellt. Über folgenden Befehl mysql -h $GREEN $DB_PRIVATE_IP $NOCOLOR -u $GREEN wpuser $NOCOLOR -p" # -p mit PW von wpuser variable aus cloudconfig-db ergänzen
+
+# SSH Verbindungen zu Instanzen
+echo -e "Eine Verbindung zur Webserver-Instanz via ssh kann wie folgt vorgenommen werden: ssh -i ~/.ssh/$KEY_NAME.pem ubuntu@$WPPUBLICIP"
+echo -e "Eine Verbindung zur Datenbank-Instanz via ssh kann wie folgt vorgenommen werden: ssh -i ~/.ssh/$KEY_NAME.pem ubuntu@$DB_PRIVATE_IP"

@@ -23,7 +23,7 @@ runcmd:
   - sed -i "s/username_here/wpuser/" /var/www/html/wordpress/wp-config.php
   - sed -i "s/password_here/Riethuesli>12345/" /var/www/html/wordpress/wp-config.php # DB PW wird im anderen yaml file erstellt exportieren 
   - sed -i "s/localhost/172.31.20.189/" /var/www/html/wordpress/wp-config.php
-  - wp --allow-root core install --url=http://public-ip-web --title="M346-celine-koenig" --admin_user=wpuser --admin_password=admin_password --admin_email=admin@example.com # ebenfalls überarbeiten PW wäre MYSQL_USER_PASSWORD, public ip
+  - wp --allow-root core install --url=http://public-ip-web --title="M346-celine-koenig" --admin_user=wpuser --admin_password=admin_password --admin_email=admin@example.com # ebenfalls überarbeiten PW wäre MYSQL_USER_PASSWORD, public ip, user evt root?
   
   write_files:
   - path: /var/www/html/wp-config.php
