@@ -16,20 +16,23 @@ runcmd:
   - chown -R apache:apache /var/www/html/wordpress/
   - chmod -R 755 /var/www/html/wordpress/
   - systemctl restart httpd
-  # WP Konfigurationsschritte
+
+  # WP Konfigurationsschritte nochmals überarbeiten
+  # evt die 4 Zeilen löschen nur 5- behalten
   - sed -i "s/database_name_here/wordpress/" /var/www/html/wordpress/wp-config.php
   - sed -i "s/username_here/wpuser/" /var/www/html/wordpress/wp-config.php
-  - sed -i "s/password_here/Riethuesli>12345/" /var/www/html/wordpress/wp-config.php
+  - sed -i "s/password_here/Riethuesli>12345/" /var/www/html/wordpress/wp-config.php # DB PW wird im anderen yaml file erstellt exportieren 
   - sed -i "s/localhost/172.31.20.189/" /var/www/html/wordpress/wp-config.php
-  - wp --allow-root core install --url=http://public-ip --title="Your Site" --admin_user=admin --admin_password=admin_password --admin_email=admin@example.com
+  - wp --allow-root core install --url=http://public-ip-web --title="M346-celine-koenig" --admin_user=wpuser --admin_password=admin_password --admin_email=admin@example.com # ebenfalls überarbeiten PW wäre MYSQL_USER_PASSWORD, public ip
+  
   write_files:
   - path: /var/www/html/wp-config.php
     content: |
       <?php
       define('DB_NAME', 'wordpress');
-      define('DB_USER', 'wpuser');
-      define('DB_PASSWORD', 'Riethuesli>12345');
-      define('DB_HOST', '172.31.20.189');   
+      define('DB_USER', 'wpuser'); 
+      define('DB_PASSWORD', 'Riethuesli>12345'); # wäre dann MYSQL_USER_PASSWORD?
+      define('DB_HOST', '172.31.20.189');   DB_INSTANCE_PRIVATE_IP nicht zwingend notwendig da die ip fix angegeben wird also geht hardcode auch
 
     owner: www-data:www-data
     permissions: '0644'

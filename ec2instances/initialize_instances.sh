@@ -85,12 +85,12 @@ aws ec2 authorize-security-group-ingress --group-name "$DB_SECURITY_GROUP" --pro
 DB_SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --group-names $DB_SECURITY_GROUP --query 'SecurityGroups[0].GroupId' --output text)
 
 # Elastic Network Interface (ENI) für die Datenbank-Instanz erstellen
-echo -e "Creating $GREEN networ interface for database instance $NOCOLOR..."
-ENI_ID=$(aws ec2 create-network-interface --subnet-0fcde7cae9536c1ab --private-ip-address "$DB_PRIVATE_IP" --query 'NetworkInterface.NetworkInterfaceId' --output text)
+echo -e "Creating $GREEN network interface for database instance $NOCOLOR..."
+ENI_ID=$(aws ec2 create-network-interface --subnet-id 0fcde7cae9536c1ab --private-ip-address "$DB_PRIVATE_IP" --query 'NetworkInterface.NetworkInterfaceId' --output text)
 
 # AWS EC2-Datenbankinstanz erstellen und ENI zuweisen
 echo -e "Creating $GREEN database instance $NOCOLOR..."
-aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" --key-name "$KEY_NAME" --security-group-ids "$DB_SECURITY_GROUP_ID" --network-interfaces "NetworkInterfaceId=$ENI_ID,DeviceIndex=0" --user-data file://cloudconfig-db.yaml --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$DB_INSTANCE_NAME}]" 
+aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" --key-name "$KEY_NAME" --security-group-ids "$DB_SECURITY_GROUP_ID" --network-interfaces "NetworkInterfaceId=$ENI_ID,DeviceIndex=0" --user-data file://cloudconfig-db.yaml --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$DB_INSTANCE_NAME}]" --
 
 # ID der Datenbankinstanz abrufen
 DB_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$DB_INSTANCE_NAME" --query 'Reservations[0].Instances[0].InstanceId' --output text --region "$REGION")
@@ -98,7 +98,8 @@ DB_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$DB_
 # Warten, bis die Datenbankinstanz läuft
 aws ec2 wait instance-running --instance-ids "$DB_INSTANCE_ID" --region "$REGION"
 
-# Private IP der Datenbankinstanz abrufen
+# Private IP der Datenbankinstanz abrufen überflüssig?
+# nochmals testen / bestätigen
 DB_INTERNAL_IP=$(aws ec2 describe-instances --instance-ids "$DB_INSTANCE_ID" --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text --region "$REGION")
 
 # AWS Webserver/WordPress-Instanz erstellen
@@ -113,7 +114,8 @@ aws ec2 wait instance-running --instance-ids "$WP_INSTANCE_ID" --region "$REGION
 # Öffentliche IP der Webserverinstanz abrufen
 WPPUBLICIP=$(aws ec2 describe-instances --instance-ids "$WP_INSTANCE_ID" --query 'Reservations[0].Instances[0].PublicIpAddress' --output text --region "$REGION")
 
-# evt wordpress Automation online noch konfigurieren
+# Public IP exportieren, damit es im cloudconfig-web verwendet werden kann
+export WPPUBLICIP="$WPPUBLICIP"
 
 # Ende und Ausgabe der öffentlichen IP zur Wordpress Seite
 echo -e "WordPress-Instanz erstellt. Öffne $GREEN http://$WPPUBLICIP $NOCOLOR im Browser, um die Konfiguration abzuschließen."
