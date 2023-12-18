@@ -47,7 +47,7 @@ Diesen Fehler hätte ich umgehen können, indem sich die Datei bereits im Ordner
 ## Testfall3
 ![]()<img src="./Testfall3.png" width="900" height="300">
 
-# DB-Secgroup in Netzwerkinterface
+## DB-Secgroup in Netzwerkinterface
 
 In diesem Bash-Skript wird eine Elastic Network Interface (ENI) für eine Datenbankinstanz in Amazon Web Services (AWS) erstellt.
 
@@ -59,7 +59,7 @@ Die ENI wird mithilfe des AWS Command Line Interface (CLI) Befehls aws ec2 creat
 
 Wichtig ist, dass dieser Code-Abschnitt nicht den gesamten Prozess abdeckt. Üblicherweise würde im Anschluss eine AWS EC2-Datenbankinstanz erstellt und die zuvor erstellte ENI dieser Instanz zugewiesen werden. Der entsprechende Code dafür fehlt jedoch in der bereitgestellten Information.
 
-# Solution Network
+## Solution Network
 
 Dieses Bash-Skript automatisiert die Erstellung einer Elastic Network Interface (ENI) für eine Datenbankinstanz in Amazon Web Services (AWS).
 
