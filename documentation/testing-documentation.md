@@ -59,5 +59,21 @@ Die ENI wird mithilfe des AWS Command Line Interface (CLI) Befehls aws ec2 creat
 
 Wichtig ist, dass dieser Code-Abschnitt nicht den gesamten Prozess abdeckt. Üblicherweise würde im Anschluss eine AWS EC2-Datenbankinstanz erstellt und die zuvor erstellte ENI dieser Instanz zugewiesen werden. Der entsprechende Code dafür fehlt jedoch in der bereitgestellten Information.
 
+# Solution Network
+
+Dieses Bash-Skript automatisiert die Erstellung einer Elastic Network Interface (ENI) für eine Datenbankinstanz in Amazon Web Services (AWS).
+
+![image](https://github.com/celine-rk/346_project_cko_ael_jno/assets/125896662/5807e61f-64f1-4caf-a49f-fefb2a4f46c0)
+
+Das Skript beginnt mit einer Kommentarzeile, die den Zweck des Codes kurz erläutert. Es wird darauf hingewiesen, dass die folgenden Befehle dazu dienen, eine Netzwerkschnittstelle für eine Datenbankinstanz in AWS zu schaffen.
+
+Anschließend wird eine Meldung auf der Konsole ausgegeben, die den Start des Prozesses signalisiert. Die Meldung enthält Farbcodes, die wahrscheinlich für eine visuelle Hervorhebung sorgen sollen. In diesem Fall wird "Erstelle Netzwerkschnittstelle für Datenbankinstanz" in einer bestimmten Farbe angezeigt.
+
+Der Hauptteil des Skripts enthält den Befehl zur ENI-Erstellung. Dabei wird die AWS Command Line Interface (CLI) genutzt. Die Parameter des Befehls geben an, in welchem Subnetz die ENI erstellt werden soll und welche private IP-Adresse ihr zugewiesen wird. Es wird davon ausgegangen, dass die IP-Adresse dynamisch durch die Variable $DB_PRIVATE_IP gesetzt wird. Die Ausgabe des Befehls wird gefiltert, um nur die ID der erstellten ENI zu extrahieren, und diese wird in der Variable ENI_ID gespeichert.
+
+Dieser Code-Ausschnitt erstellt nur die ENI, nicht jedoch die gesamte Datenbankinstanz. In einem vollständigen Skript würden nach diesem Schritt weitere Befehle folgen, um die Datenbankinstanz zu erstellen und die erstellte ENI dieser Instanz zuzuweisen.
+
+
+
 
 
