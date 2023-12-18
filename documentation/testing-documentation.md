@@ -59,7 +59,31 @@ Die ENI wird mithilfe des AWS Command Line Interface (CLI) Befehls aws ec2 creat
 
 Wichtig ist, dass dieser Code-Abschnitt nicht den gesamten Prozess abdeckt. Üblicherweise würde im Anschluss eine AWS EC2-Datenbankinstanz erstellt und die zuvor erstellte ENI dieser Instanz zugewiesen werden. Der entsprechende Code dafür fehlt jedoch in der bereitgestellten Information.
 
-## Solution Network
+## Error Network
+
+Bei einem Versuch, eine Netzwerkschnittstelle für eine Datenbankinstanz in AWS zu erstellen, sind einige Probleme aufgetreten sind. Allerdings sind einige erforderliche Parameter nicht korrekt oder vollständig angegeben, was zu Fehlern führt. 
+
+![image](https://github.com/celine-rk/346_project_cko_ael_jno/assets/125896662/b09e155a-99ad-46ac-9d65-f417b4eda6a5)
+
+Der Befehl zum Erstellen der Netzwerkschnittstelle lautet in etwa so:
+
+aws ec2 create-network-interface --subnet-id <Subnet-ID> ...
+Leider wurde dieser Befehl nicht korrekt ausgeführt, da das erforderliche Argument --subnet-id fehlt. Es ist wichtig, das Subnetz anzugeben, in dem die Netzwerkschnittstelle erstellt werden soll.
+
+Im Anschluss daran wurde versucht, eine Datenbankinstanz zu erstellen. Hierbei könnte es zu Fehlern gekommen sein, da möglicherweise Netzwerkschnittstellen und Instanz-spezifische Sicherheitsgruppen nicht gleichzeitig im selben Request angegeben werden können. Das führt zu einer InvalidParameterCombination-Fehlermeldung.
+
+Beim Warten auf das Hochfahren der Instanz trat ein weiterer Fehler auf. Dieser Fehler deutet darauf hin, dass die Instanz-ID als "None" betrachtet wird, was als ungültig erkannt wurde.
+
+Abschließend, beim Versuch, Informationen zur Instanz abzurufen, wurde ein Fehler festgestellt, da die Instanz-ID als "None" angegeben wurde, was zu einem InvalidInstanceID.Malformed-Fehler führte.
+
+Um diese Probleme zu beheben, überprüfe die Befehlsaufrufe, um sicherzustellen, dass alle erforderlichen Parameter korrekt angegeben sind, insbesondere die Subnetz-ID beim Erstellen der Netzwerkschnittstelle. Außerdem solltest du sicherstellen, dass die Instanz-ID korrekt abgerufen wird, bevor darauf gewartet oder Informationen darüber abgerufen werden.
+
+Ein Beispielbefehl zum Erstellen einer Netzwerkschnittstelle könnte so aussehen:
+
+aws ec2 create-network-interface --subnet-id subnet-xyz123 --private-ip-address 10.0.0.5 --groups sg-abc456
+Ersetze subnet-xyz123 und sg-abc456 durch deine tatsächlichen Subnetz-ID und Sicherheitsgruppen-ID.
+
+## Solution Error Network
 
 Dieses Bash-Skript automatisiert die Erstellung einer Elastic Network Interface (ENI) für eine Datenbankinstanz in Amazon Web Services (AWS).
 
@@ -86,6 +110,8 @@ Die Instanz wurde in einem bestimmten Subnetz und einer virtuellen privaten Clou
 Zur Instanz gehört eine Netzwerkschnittstelle (ENI), die mit einem bestimmten Geräteindex verbunden ist. Diese Schnittstelle wird automatisch gelöscht, wenn die Instanz beendet wird.
 
 Um die Konfiguration der Instanz abzuschließen, öffne deinen Webbrowser und navigiere zur öffentlichen IP-Adresse der Instanz. Aktuell lautet diese IP-Adresse [Instanz-Public-IP].
+
+
 
 
 
