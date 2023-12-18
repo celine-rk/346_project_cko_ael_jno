@@ -65,7 +65,7 @@ fi
 
 # Erstellen des SSH-Schlüsselpaars
 echo -e "Creating a new SSH key-pair..."
-aws ec2 create-key-pair --key-name "$KEY_NAME" --key-type rsa --query "KeyMaterial" --output text > "~/.ssh/$KEY_NAME.pem"
+aws ec2 create-key-pair --key-name "$KEY_NAME" --key-type rsa --query "KeyMaterial" --output text > "$KEY_NAME.pem"
 
 # Sicherheitsgruppen für die Webserver-Instanz erstellen
 echo -e "Creating $GREEN webserver security group $NOCOLOR..."
@@ -82,25 +82,21 @@ aws ec2 create-security-group --group-name "$DB_SECURITY_GROUP" --description "E
 aws ec2 authorize-security-group-ingress --group-name "$DB_SECURITY_GROUP" --protocol tcp --port 3306 --source-group "$WP_SECURITY_GROUP"
 
 # Gruppenid für die Datenbankinstanz herausfinden
-DB_SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --group-names $DB_SECURITY_GROUP --query 'SecurityGroups[0].GroupId' --output text)
+DB_SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --group-names "$DB_SECURITY_GROUP" --query 'SecurityGroups[0].GroupId' --output text)
 
 # Elastic Network Interface (ENI) für die Datenbank-Instanz erstellen
 echo -e "Creating $GREEN network interface for database instance $NOCOLOR..."
-ENI_ID=$(aws ec2 create-network-interface --subnet-id 0fcde7cae9536c1ab --private-ip-address "$DB_PRIVATE_IP" --query 'NetworkInterface.NetworkInterfaceId' --output text)
+ENI_ID=$(aws ec2 create-network-interface --subnet-id subnet-0505adcabd8142dcb --private-ip-address "$DB_PRIVATE_IP" --groups "$DB_SECURITY_GROUP_ID" --query 'NetworkInterface.NetworkInterfaceId' --output text)
 
 # AWS EC2-Datenbankinstanz erstellen und ENI zuweisen
 echo -e "Creating $GREEN database instance $NOCOLOR..."
-aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" --key-name "$KEY_NAME" --security-group-ids "$DB_SECURITY_GROUP_ID" --network-interfaces "NetworkInterfaceId=$ENI_ID,DeviceIndex=0" --user-data file://cloudconfig-db.yaml --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$DB_INSTANCE_NAME}]" --
+aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" --key-name "$KEY_NAME" --network-interfaces "NetworkInterfaceId=$ENI_ID,DeviceIndex=0" --user-data file://cloudconfig-db.yaml --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$DB_INSTANCE_NAME}]"
 
 # ID der Datenbankinstanz abrufen
 DB_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$DB_INSTANCE_NAME" --query 'Reservations[0].Instances[0].InstanceId' --output text --region "$REGION")
 
 # Warten, bis die Datenbankinstanz läuft
 aws ec2 wait instance-running --instance-ids "$DB_INSTANCE_ID" --region "$REGION"
-
-# Private IP der Datenbankinstanz abrufen überflüssig?
-# nochmals testen / bestätigen
-DB_INTERNAL_IP=$(aws ec2 describe-instances --instance-ids "$DB_INSTANCE_ID" --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text --region "$REGION")
 
 # AWS Webserver/WordPress-Instanz erstellen
 aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" --key-name "$KEY_NAME" --security-group-ids "$WP_SECURITY_GROUP_ID" --user-data file://cloudconfig-web.yaml --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$WP_INSTANCE_NAME}]"
@@ -117,13 +113,14 @@ WPPUBLICIP=$(aws ec2 describe-instances --instance-ids "$WP_INSTANCE_ID" --query
 # Ende und Ausgabe der öffentlichen IP zur Wordpress Seite
 echo -e "Die Reihenfolge der Befehle ist wichtig! Die Verbindung zwischen der Webserver-Instanz und der DB-Instanz kann nur geprüft werden, wenn eine $GREEN SSH-Verbindung $NOCOLOR auf den $GREEN Webserver $NOCOLOR erfolgte"
 
+
 echo -e "WordPress-Instanz erstellt. Öffne $GREEN http://$WPPUBLICIP $NOCOLOR im Browser, um die Konfiguration abzuschließen."
 
 # SSH Verbindungen zu Instanzen
 echo -e "Eine Verbindung zur Webserver-Instanz via ssh kann wie folgt vorgenommen werden: ssh -i ~/.ssh/$KEY_NAME.pem ubuntu@$WPPUBLICIP"
 
 # Datenbank Verbindung zu Webserver herstellen reihenfolge wechseln
-echo -e "Datenbank-Instanz wurde erstellt. Über folgenden Befehl kann die Kommunikation von Webserver zu DB geprüft werden: mysql -h $GREEN $DB_PRIVATE_IP $NOCOLOR -u $GREEN wpuser $NOCOLOR -p" 
-echo -e "Das PW für $BOLD wpuser $REGULAR lautet: X4#L6LwrN4V!w4&m^6pH98Li " 
+echo -e "Datenbank-Instanz wurde erstellt. Über folgenden Befehl kann die Kommunikation von Webserver zu DB geprüft werden: $BOLD mysql -h  $GREEN $DB_PRIVATE_IP $NOCOLOR -u $GREEN wpuser $NOCOLOR -p $REGULAR" 
+echo -e "Das PW für $BOLD wpuser $REGULAR lautet: $BOLD X4#L6LwrN4V!w4&m^6pH98Li $REGULAR " 
 
 echo -e "Eine Verbindung zur Datenbank-Instanz via ssh kann wie folgt vorgenommen werden: ssh -i ~/.ssh/$KEY_NAME.pem ubuntu@$DB_PRIVATE_IP"
