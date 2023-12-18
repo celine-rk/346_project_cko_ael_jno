@@ -45,3 +45,4 @@ Diesen Fehler hätte ich umgehen können, indem sich die Datei bereits im Ordner
 ...
 
 ## Testfall3
+![]()<img src="./Testfall3.png" width="900" height="300">
