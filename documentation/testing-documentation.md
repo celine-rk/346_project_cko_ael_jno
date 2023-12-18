@@ -124,6 +124,7 @@ aws ec2 describe-instances --filters "Name=tag:Name,Values=DB-Wordpress" --query
 Hier wird die AWS CLI verwendet, um Instanzen anhand von Tags zu filtern. Der Filter ist auf den Tag "Name" mit dem Wert "DB-Wordpress" festgelegt. Das Ergebnis wird durch --query auf die Instanz-ID begrenzt, und --output text stellt sicher, dass die Ausgabe im Textformat erfolgt. Der Befehl wird in der Region "us-east-1" ausgeführt.
 
 Nachdem die Instanz-ID abgerufen wurde, wird im zweiten Befehl versucht, die private IP-Adresse dieser spezifischen Instanz zu erhalten:
+
 aws ec2 describe-instances --instance-ids i-0f18aac3467632dbb --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text --region us-east-1
 
 Hierbei wird die Instanz-ID "i-0f18aac3467632dbb" direkt angegeben, und der Befehl versucht, die private IP-Adresse dieser Instanz abzurufen. Ähnlich wie beim ersten Befehl wird durch --query und --output text festgelegt, dass nur die private IP-Adresse angezeigt wird. Auch dieser Befehl wird in der Region "us-east-1" ausgeführt.
