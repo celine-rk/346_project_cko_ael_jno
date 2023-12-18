@@ -111,6 +111,25 @@ Zur Instanz gehört eine Netzwerkschnittstelle (ENI), die mit einem bestimmten G
 
 Um die Konfiguration der Instanz abzuschließen, öffne deinen Webbrowser und navigiere zur öffentlichen IP-Adresse der Instanz. Aktuell lautet diese IP-Adresse [Instanz-Public-IP].
 
+## Abfragen DB-Instanz
+
+In den gegebenen AWS CLI-Befehlen wird versucht, Informationen über eine EC2-Instanz abzurufen.
+
+![image](https://github.com/celine-rk/346_project_cko_ael_jno/assets/125896662/240d2af9-85d2-4a48-98ba-0541dd973996)
+
+Der erste Befehl zielt darauf ab, die Instanz-ID einer EC2-Instanz zu erhalten, die den Tag "DB-Wordpress" trägt:
+
+aws ec2 describe-instances --filters "Name=tag:Name,Values=DB-Wordpress" --query 'Reservations[0].Instances[0].InstanceId' --output text --region us-east-1
+
+Hier wird die AWS CLI verwendet, um Instanzen anhand von Tags zu filtern. Der Filter ist auf den Tag "Name" mit dem Wert "DB-Wordpress" festgelegt. Das Ergebnis wird durch --query auf die Instanz-ID begrenzt, und --output text stellt sicher, dass die Ausgabe im Textformat erfolgt. Der Befehl wird in der Region "us-east-1" ausgeführt.
+
+Nachdem die Instanz-ID abgerufen wurde, wird im zweiten Befehl versucht, die private IP-Adresse dieser spezifischen Instanz zu erhalten:
+aws ec2 describe-instances --instance-ids i-0f18aac3467632dbb --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text --region us-east-1
+
+Hierbei wird die Instanz-ID "i-0f18aac3467632dbb" direkt angegeben, und der Befehl versucht, die private IP-Adresse dieser Instanz abzurufen. Ähnlich wie beim ersten Befehl wird durch --query und --output text festgelegt, dass nur die private IP-Adresse angezeigt wird. Auch dieser Befehl wird in der Region "us-east-1" ausgeführt.
+
+Zusammenfassend werden diese Befehle verwendet, um spezifische Informationen über eine EC2-Instanz mit dem Tag "DB-Wordpress" zu sammeln. Der erste Befehl dient dazu, die Instanz-ID zu identifizieren, während der zweite Befehl die private IP-Adresse dieser Instanz abruft. Es ist wichtig, dass die Werte wie die Instanz-ID und der Tag korrekt angepasst werden, um auf die entsprechenden Ressourcen zuzugreifen.
+
 
 
 
