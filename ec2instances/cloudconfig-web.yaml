@@ -21,5 +21,4 @@ runcmd:
   - sed -i "s/database_name_here/wordpress/" /var/www/html/wordpress/wp-config.php
   - sed -i "s/username_here/wpuser/" /var/www/html/wordpress/wp-config.php
   - sed -i "s/password_here/X4#L6LwrN4V!w4&m^6pH98Li/" /var/www/html/wordpress/wp-config.php 
-  - sed -i "s/localhost/172.31.20.189/" /var/www/html/wordpress/wp-config.php 
-  
+  - sed -i "s/localhost/172.31.20.186/" /var/www/html/wordpress/wp-config.php 

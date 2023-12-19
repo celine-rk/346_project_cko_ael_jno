@@ -35,7 +35,10 @@ DB_INSTANCE_NAME="DB-Wordpress"
 WP_INSTANCE_NAME="WP-Webserver"
 
 # private ip für db instanz
-DB_PRIVATE_IP="172.31.20.189"
+DB_PRIVATE_IP="172.31.20.186"
+
+# Subnet ID für DB-Instanz
+SUBNET_ID="subnet-0505adcabd8142dcb"
 
 # Erster Check, ob AWS CLI installiert ist
 if command -v aws &> /dev/null; then
@@ -86,11 +89,11 @@ DB_SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --group-names "$DB_SECUR
 
 # Elastic Network Interface (ENI) für die Datenbank-Instanz erstellen
 echo -e "Creating $GREEN network interface for database instance $NOCOLOR..."
-ENI_ID=$(aws ec2 create-network-interface --subnet-id subnet-0505adcabd8142dcb --private-ip-address "$DB_PRIVATE_IP" --groups "$DB_SECURITY_GROUP_ID" --query 'NetworkInterface.NetworkInterfaceId' --output text)
+ENI_ID=$(aws ec2 create-network-interface --subnet-id "$SUBNET_ID" --private-ip-address "$DB_PRIVATE_IP" --groups "$DB_SECURITY_GROUP_ID" --query 'NetworkInterface.NetworkInterfaceId' --output text)
 
 # AWS EC2-Datenbankinstanz erstellen und ENI zuweisen
 echo -e "Creating $GREEN database instance $NOCOLOR..."
-aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" --key-name "$KEY_NAME" --network-interfaces "NetworkInterfaceId=$ENI_ID,DeviceIndex=0" --user-data file://cloudconfig-db.yaml --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$DB_INSTANCE_NAME}]"
+aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" --key-name "$KEY_NAME" --network-interfaces "NetworkInterfaceId="$ENI_ID",DeviceIndex=0" --user-data file://cloudconfig-db.yaml --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$DB_INSTANCE_NAME}]"
 
 # ID der Datenbankinstanz abrufen
 DB_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$DB_INSTANCE_NAME" --query 'Reservations[0].Instances[0].InstanceId' --output text --region "$REGION")
@@ -114,13 +117,13 @@ WPPUBLICIP=$(aws ec2 describe-instances --instance-ids "$WP_INSTANCE_ID" --query
 echo -e "Die Reihenfolge der Befehle ist wichtig! Die Verbindung zwischen der Webserver-Instanz und der DB-Instanz kann nur geprüft werden, wenn eine $GREEN SSH-Verbindung $NOCOLOR auf den $GREEN Webserver $NOCOLOR erfolgte"
 
 
-echo -e "WordPress-Instanz erstellt. Öffne $GREEN http://$WPPUBLICIP $NOCOLOR im Browser, um die Konfiguration abzuschließen."
+echo -e "WordPress-Instanz erstellt. Öffne $GREEN http://"$WPPUBLICIP" $NOCOLOR im Browser, um die Konfiguration abzuschließen."
 
 # SSH Verbindungen zu Instanzen
-echo -e "Eine Verbindung zur Webserver-Instanz via ssh kann wie folgt vorgenommen werden: ssh -i ~/.ssh/$KEY_NAME.pem ubuntu@$WPPUBLICIP"
+echo -e "Eine Verbindung zur Webserver-Instanz via ssh kann wie folgt vorgenommen werden: ssh -i $KEY_NAME.pem ubuntu@$WPPUBLICIP"
 
 # Datenbank Verbindung zu Webserver herstellen reihenfolge wechseln
 echo -e "Datenbank-Instanz wurde erstellt. Über folgenden Befehl kann die Kommunikation von Webserver zu DB geprüft werden: $BOLD mysql -h  $GREEN $DB_PRIVATE_IP $NOCOLOR -u $GREEN wpuser $NOCOLOR -p $REGULAR" 
 echo -e "Das PW für $BOLD wpuser $REGULAR lautet: $BOLD X4#L6LwrN4V!w4&m^6pH98Li $REGULAR " 
 
-echo -e "Eine Verbindung zur Datenbank-Instanz via ssh kann wie folgt vorgenommen werden: ssh -i ~/.ssh/$KEY_NAME.pem ubuntu@$DB_PRIVATE_IP"
+echo -e "Eine Verbindung zur Datenbank-Instanz via ssh kann wie folgt vorgenommen werden: ssh -i $KEY_NAME.pem ubuntu@$DB_PRIVATE_IP"
