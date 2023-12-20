@@ -35,10 +35,11 @@ DB_INSTANCE_NAME="DB-Wordpress"
 WP_INSTANCE_NAME="WP-Webserver"
 
 # private ip für db instanz
-DB_PRIVATE_IP="172.31.20.186"
+DB_PRIVATE_IP="172.31.10.15"
 
-# Subnet ID für DB-Instanz
-SUBNET_ID="subnet-0505adcabd8142dcb" # tbd 
+# VPC CIDR-Block für neu erstelltes subnet
+CIDR_BLOCK="172.31.0.0/16"
+ 
 
 # Erster Check, ob AWS CLI installiert ist
 if command -v aws &> /dev/null; then
@@ -88,9 +89,16 @@ fi
 # # Gruppenid für die Datenbankinstanz herausfinden
 #DB_SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --group-names "$DB_SECURITY_GROUP" --query 'SecurityGroups[0].GroupId' --output text)
 
-# TODO 
-# erstelle ein subnetz 
-# subnet id abfragen und in Variable (SUBNET_ID) hinzufügen 
+# Neues VPC erstellen 
+echo -e "create $GREEN new vpc $NOCOLOR....."
+aws ec2 create-vpc --cidr-block "$CIDR_BLOCK"
+
+# VPC-ID für us-east-1 abfragen
+VPC_ID=$(aws ec2 describe-vpcs --filters "Name=cidr,Values="$CIDR_BLOCK"" --query 'Vpcs[0].VpcId' --output text)
+
+# Neues Subnet erstellen
+echo -e "creating $GREEN new subnet $NOCOLOR....."
+SUBNET_ID=$(aws ec2 create-subnet --vpc-id "$VPC_ID" --cidr-block "$CIDR_BLOCK" --query 'Subnet.SubnetId' --output text)
 
 # # Elastic Network Interface (ENI) für die Datenbank-Instanz erstellen
 # echo -e "Creating $GREEN network interface for database instance $NOCOLOR..."

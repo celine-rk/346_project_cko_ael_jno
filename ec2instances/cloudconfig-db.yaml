@@ -10,7 +10,7 @@ write_files:
   - path: /etc/mysql/mariadb.conf.d/50-server.cnf
     content: |
       [mysqld]
-      bind-address = 172.31.20.186
+      bind-address = 172.31.10.15
       log-error = /var/log/mysql/error.log
 
 runcmd:
