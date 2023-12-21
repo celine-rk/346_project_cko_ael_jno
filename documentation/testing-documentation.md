@@ -41,8 +41,14 @@ Demnach suchte ich im Schnipsel den/die Fehler, welche ich nach kurzer Zeit fand
 Diesen Fehler hätte ich umgehen können, indem sich die Datei bereits im Ordner befindet wodurch ich mir ebenfalls einige Zeilen an Code und Zeit hätte sparen können. Jetzt sollten sich alle notwendigen Daten, die für die Initialisierung der Instanzen gebraucht werden im Ordner **ec2instances** befinden, der ohne Mühe für die Ausführung heruntergeladen und ausgeführt werden kann ohne eine Bestätigung des Pfades durch den User verlangen zu müssen.
 
 ## Fehlende Double Quotes
-![]()<img src="./Testfall2.png" width="2104" height="69">
-...
+- Testzeitpunkt: 14.12.23
+- Testperson: Celine König
+  
+![]()<img src="./Testfall2.png" width="2200" height="69">
+
+Bei diesem Versuch, trat ein Fehler auf, der die Image-ID nicht richtig erkennen und übergeben konnte. Dies führte dazu, dass keine Instanz erstellt werden konnte.
+Die Ursache dazu waren die erforderlichen Anführungszeichen um die Variable *Image-ID*. Der Korrekte Syntax wurde daher nicht beachtet.
+Der Wert, den die Variable Image-ID erhalten sollte, wurde nicht richtig übergeben. Dies kann dazu führen, dass die Bash-Shell die Informationen nicht richtig parsen konnte.
 
 ## Testfall3
 ![]()<img src="./Testfall3.png" width="900" height="300">
