@@ -89,16 +89,14 @@ fi
 # # Gruppenid für die Datenbankinstanz herausfinden
 #DB_SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --group-names "$DB_SECURITY_GROUP" --query 'SecurityGroups[0].GroupId' --output text)
 
-# Neues VPC erstellen 
+# Neues VPC erstellen und deren ID in Variable VPC_ID hinzufügen
 echo -e "create $GREEN new vpc $NOCOLOR....."
-aws ec2 create-vpc --cidr-block "$CIDR_BLOCK"
 
-# VPC-ID für us-east-1 abfragen
-VPC_ID=$(aws ec2 describe-vpcs --filters "Name=cidr,Values="$CIDR_BLOCK"" --query 'Vpcs[0].VpcId' --output text)
+VPC_ID=$(aws ec2 create-vpc --cidr-block "$CIDR_BLOCK" --query 'Vpc.VpcId' --output text)
 
 # Neues Subnet erstellen
-echo -e "creating $GREEN new subnet $NOCOLOR....."
-SUBNET_ID=$(aws ec2 create-subnet --vpc-id "$VPC_ID" --cidr-block "$CIDR_BLOCK" --query 'Subnet.SubnetId' --output text)
+#echo -e "creating $GREEN new subnet $NOCOLOR....."
+#SUBNET_ID=$(aws ec2 create-subnet --vpc-id "$VPC_ID" --cidr-block "$CIDR_BLOCK" --query 'Subnet.SubnetId' --output text)
 
 # # Elastic Network Interface (ENI) für die Datenbank-Instanz erstellen
 # echo -e "Creating $GREEN network interface for database instance $NOCOLOR..."
