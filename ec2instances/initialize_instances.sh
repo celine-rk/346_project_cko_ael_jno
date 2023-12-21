@@ -71,9 +71,18 @@ fi
 #echo -e "Creating a new SSH key-pair..."
 #echo "aws ec2 create-key-pair --key-name "$KEY_NAME" --key-type rsa --query "KeyMaterial" --output text > "$KEY_NAME.pem""
 
-# # Sicherheitsgruppen für die Webserver-Instanz erstellen
+# Neues VPC erstellen und deren ID in Variable VPC_ID hinzufügen
+echo -e "create $GREEN new vpc $NOCOLOR....."
+
+VPC_ID=$(aws ec2 create-vpc --cidr-block "$CIDR_BLOCK" --query 'Vpc.VpcId' --output text)
+
+# Neues Subnet erstellen
+echo -e "creating $GREEN new subnet $NOCOLOR....."
+SUBNET_ID=$(aws ec2 create-subnet --vpc-id "$VPC_ID" --cidr-block "$CIDR_BLOCK" --query 'Subnet.SubnetId' --output text)
+
+# # Sicherheitsgruppen für die Webserver-Instanz erstellen (VPC_ID hinzufügen daher verschoben)
 #  echo -e "Creating $GREEN webserver security group $NOCOLOR..."
-#  aws ec2 create-security-group --group-name "$WP_SECURITY_GROUP" --description "EC2-wordpress"
+#  aws ec2 create-security-group --group-name "$WP_SECURITY_GROUP" --description "EC2-wordpress --vpc-id "$VPC_ID""
 #  aws ec2 authorize-security-group-ingress --group-name "$WP_SECURITY_GROUP" --protocol tcp --port 80 --cidr 0.0.0.0/0  # HTTP-Verbindung erlauben
 #  aws ec2 authorize-security-group-ingress --group-name "$WP_SECURITY_GROUP" --protocol tcp --port 22 --cidr 0.0.0.0/0  # SSH-Verbindung erlauben
 
@@ -82,21 +91,12 @@ fi
 
 # # # Sicherheitsgruppen für die Datenbank-Instanz erstellen
 # echo -e "Creating $GREEN database security group $NOCOLOR..."
-# aws ec2 create-security-group --group-name "$DB_SECURITY_GROUP" --description "EC2-database"
+# aws ec2 create-security-group --group-name "$DB_SECURITY_GROUP" --description "EC2-database --vpc-id "$VPC_ID""
 # aws ec2 authorize-security-group-ingress --group-name "$DB_SECURITY_GROUP" --protocol tcp --port 3306 --source-group "$WP_SECURITY_GROUP"
 # aws ec2 authorize-security-group-ingress --group-name "$DB_SECURITY_GROUP" --protocol tcp --port 22 --source-group "$WP_SECURITY_GROUP"
 
 # # Gruppenid für die Datenbankinstanz herausfinden
 #DB_SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --group-names "$DB_SECURITY_GROUP" --query 'SecurityGroups[0].GroupId' --output text)
-
-# Neues VPC erstellen und deren ID in Variable VPC_ID hinzufügen
-echo -e "create $GREEN new vpc $NOCOLOR....."
-
-VPC_ID=$(aws ec2 create-vpc --cidr-block "$CIDR_BLOCK" --query 'Vpc.VpcId' --output text)
-
-# Neues Subnet erstellen
-#echo -e "creating $GREEN new subnet $NOCOLOR....."
-#SUBNET_ID=$(aws ec2 create-subnet --vpc-id "$VPC_ID" --cidr-block "$CIDR_BLOCK" --query 'Subnet.SubnetId' --output text)
 
 # # Elastic Network Interface (ENI) für die Datenbank-Instanz erstellen
 # echo -e "Creating $GREEN network interface for database instance $NOCOLOR..."
