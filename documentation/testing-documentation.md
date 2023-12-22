@@ -49,7 +49,7 @@ Bei diesem Versuch, trat ein Fehler auf, der die Image-ID nicht richtig erkennen
 Die Ursache dazu waren die erforderlichen Anführungszeichen um die Variable **Image-ID**. Der Korrekte Syntax wurde daher nicht beachtet.
 Der Wert, den die Variable Image-ID erhalten sollte, wurde nicht richtig übergeben. Dies kann dazu führen, dass die Bash-Shell die Informationen nicht richtig parsen konnte.
 
-## Testfall3
+## Komplexität in AWS CLI-Parametern
 Die Fehlermeldungen weisen auf mehrere Probleme beim Verwenden der AWS Command Line Interface hin.
 
 ![]()<img src="./Testfall3.png" width="900" height="300">
