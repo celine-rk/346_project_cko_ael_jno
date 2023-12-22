@@ -97,8 +97,7 @@ fi
 # echo -e "Creating $GREEN network interface for database instance $NOCOLOR..."
 # ENI_ID_DB=$(aws ec2 create-network-interface --subnet-id "$SUBNET_ID" --private-ip-address "$DB_PRIVATE_IP" --groups "$DB_SECURITY_GROUP_ID" --query 'NetworkInterface.NetworkInterfaceId' --output text)
 
-# # # Elastic Network Interface (ENI) für die Webserver-Instanz erstellen
-# echo -e "Creating $GREEN network interface for webserver instance $NOCOLOR..."
+# #  Elastic Network Interface (ENI) für die Webserver-Instanz erstellen
 
 # # Elastische IPv4-Adresse erstellen
 # echo -e "Creating $GREEN elastic IPv4 for webserver-instance $NOCOLOR..."
