@@ -100,7 +100,7 @@ Der Testlauf auf nachher erfolgreich und enthielt keine parsing Probleme oder we
 
 In diesem Screenshot wurde eine neue AWS EC2-Instanz erstellt, um Ressourcen in der Cloud zu nutzen. AWS bietet eine umfassende Dokumentation, aber diese kann aufgrund ihrer Tiefe und Komplexität schwierig zu navigieren sein. Es erfordert Zeit und Aufmerksamkeit, um die richtigen Informationen zu finden.
 
-![]()<img src="./Scriptohneablauffehler.png" width="1500" height="100">
+![]()<img src="./Scriptohneablauffehler.png" width="1500" height="800">
 
 Die Instanz wurde am 15. Dezember 2023 um 14:36:27 UTC erstellt. Derzeit befindet sie sich im Status "pending", da sie noch startet. Die Instanz ist ein virtueller Server in der Cloud mit einer eindeutigen Instanz-ID.
 
@@ -134,6 +134,105 @@ Hierbei wird die Instanz-ID "i-0f18aac3467632dbb" direkt angegeben, und der Befe
 Diese Befehle werden verwendet, um spezifische Informationen über eine EC2-Instanz mit dem Tag "DB-Wordpress" zu sammeln. Der erste Befehl dient dazu, die Instanz-ID zu identifizieren, während der zweite Befehl die private IP-Adresse dieser Instanz abruft. Es ist wichtig, dass die Werte wie die Instanz-ID und der Tag korrekt angepasst werden, um auf die entsprechenden Ressourcen zuzugreifen.
 
 
+## Inbound Roules Definierung & Public IPv4 Zuweisung Webserver-Instanz
+
+- Testzeitpunkt: 21.12.23
+- Testperson: Celine König
+
+**Problem**
+
+Wie ich am Donnerstagabend bemerkte werden mir die Security-groups der Instanzen teilweise zwar erstellt, aber ich konnte keine in-/outbound Roule festlegen, aufgrund dieser Fehlermeldung
+
+![]()<img src="./Error_Sec_groups.png" width="1200" height="100">
+
+**Solution**
+
+In erster Linie war icht verwirrt, denn ich wusste nicht weshalb AWS im Default VPC nach der Gruppe **db-sec-group** suchte, denn diese habe ich in einem seperaten von mir erstellten VPC beigefügt. Also begann ich ein wenig zu recherchieren und stiess nach einer gewissen Zeit hierauf:
+
+![]()<img src="./solution_secgroups_error.png" width="600" height="100">
+
+Im AWS-Command, der die verschiedenen Regeln erstellt habe ich bis anhin immer den Gruppennamen mitgegeben, wodurch dieser Fehler auftrat. Hier ist ein Beispiel aus meinem Script, wie der Befehl aussah und wie er korrekt lautet
+
+**Vorher**
+`aws ec2 authorize-security-group-ingress --group-id "$DB_SECURITY_GROUP_NAME" --protocol tcp --port 3306 --source-group "$WP_SECURITY_GROUP_ID"`
+
+**Nachher**
+`aws ec2 authorize-security-group-ingress --group-id "$DB_SECURITY_GROUP_ID" --protocol tcp --port 3306 --source-group "$WP_SECURITY_GROUP_ID"`
+
+Mit Dieser Änderung vergewisserte ich mich über die Korrektheit im AWS-GUI und sah, dass die Konfigruation der Regeln für die jeweiligen Gruppen nun funktionierte und die Fehlermeldung gar nicht erst auftrat.
+
+Im Verlauf des weiteren Testings des Scripts, kam ich zum Problem, dass ich der Webserver-Instanz eine Public IPv4 IP geben muss damit ich diese schliesslich aufrufen kann. Im `aws ec2 run-instance` Befehl gibt es aber keine Möglichkeit einer Instanz automatisch eine Public-IPv4 zuzuweisen, sofern man diese in einem non-default VPC laufen lassen möchte, was bei mir der Fall ist. Im anfolgenden Screenshot ist zusehen, dass ich über den `aws ec2 run-instance` und dem Parameter `--associate-public-ip-address`, welchen Domi und ich rausfanden und testen wollten, obs funktioniert, keine IP zuweisen kann.
+
+![]()<img src="./Pub_ipv4_error.png" width="700" height="200">
+
+Ich selbst kam nicht mehr wirklich weiter, weil ich nicht wirklich wusste nach was ich überhaupt suchen muss damit ich zu meinem Ziel komme, also wandte ich mich einmal mehr an Domi. Im Austausch kamen wir dann zum Entschluss, dass ich die Zuweisung der IPv4 wirklich nicht im `aws ec2 run-instance` Befehl vergeben kann und dafür einen weiteren Befehl anwenden muss, nämlich diesen `aws ec2 allocate-address`.  Über diesen Befehl kann ich AWS direkt mitteilen, dass ich eine automatisch generierte public IPv4 erstellen möchte. 
+Also recherchierte ich ein wenig wie ich folgende Anforderungen umsetzen kann:
+
+- **Erstellung einer Public-IPv4**
+- **IPv4 dem Netzwerk-Interface zuweisen**
+
+Domi gab mir bereits eine kleine Starthilfe mit über den folgenden Link `https://docs.aws.amazon.com/cli/latest/reference/ec2/allocate-address.html`. Anhand dessen stellte ich die Befehle zusammen, die eine IP erstellen und dem Netzwerk-Interface der Webserver-Instanz zuweisen. Die so aussehen:
+
+1. `ALLOCATION_ID=$(aws ec2 allocate-address --domain vpc --query 'AllocationId' --output text)` -> Erstellt eine IP
+
+2. `ENI_ID_WEB=$(aws ec2 create-network-interface --subnet-id "$SUBNET_ID" --groups "$WP_SECURITY_GROUP_ID"  --query 'NetworkInterface.NetworkInterfaceId' --output text)` -> Netzwerk-Interface muss natürlich ebenfalls erstellt werden
+
+3. `aws ec2 associate-address --allocation-id "$ALLOCATION_ID" --network-interface-id "$ENI_ID_WEB"` -> Zuweisung der IP am Netzwerk Interface
+
+
+In einem ersten Testversuch dessen, stiess ich auch auf weitere Lücken die mir fehlten, wie ein GW für das erstellte Interface.
+
+![]()<img src="./GW_error.png" width="1000" height="100">
+
+Weil dieser befehl hinzu kam musste ich den Aufbau/Ablauf des Scripts etwas erweitern, da die Folgende Anforderungen abdeckt werden müssen, damit ich die IPv4 dem Interface zuweisen kann:
+
+- **Erstellung eines GW's**
+- **Kommunikaton nach aussen ermöglichen (nochmals überprüfen)**
+
+Mit Recherche kam ich dann auf folgende Seiten, mit denen ich die Befehle dann zusammenstellen konnte:
+
+- `https://docs.aws.amazon.com/cli/latest/reference/ec2/create-internet-gateway.html`
+
+- `https://docs.aws.amazon.com/cli/latest/reference/ec2/attach-internet-gateway.html`
+
+So kam schliesslich folgender Code zusammen:
+
+```
+
+# Elastic Network Interface (ENI) für die Webserver-Instanz erstellen
+
+# Elastische IPv4-Adresse erstellen
+echo -e "Creating $GREEN elastic IPv4 for webserver-instance $NOCOLOR..."
+ALLOCATION_ID=$(aws ec2 allocate-address --domain vpc --query 'AllocationId' --output text)
+
+# Netzwerkschnittstelle erstellen (inklusive Zuordnung der elastischen IPv4-Adresse)
+echo -e "Creating $GREEN network interface for webserver instance $NOCOLOR..."
+ENI_ID_WEB=$(aws ec2 create-network-interface --subnet-id "$SUBNET_ID" --groups "$WP_SECURITY_GROUP_ID"  --query 'NetworkInterface.NetworkInterfaceId' --output text)
+
+# Internet GW erstellen
+echo -e "Creating $GREEN internet GW $NOCOLOR..."
+IGW_ID=$(aws ec2 create-internet-gateway --query 'InternetGateway.InternetGatewayId' --output text)
+
+# GW an VPC attachen
+echo -e "attaching $GREEN GW to VPC $NOCOLOR..."
+aws ec2 attach-internet-gateway --internet-gateway-id "$IGW_ID" --vpc-id "$VPC_ID"
+
+# Routing Tabelle abfragen (für die ID) und anschliessend dem GW anpassen
+echo -e "Updating $GREEN Routing Tables $NOCOLOR..."
+ROUTE_TABLE_ID=$(aws ec2 describe-route-tables --filters "Name=vpc-id,Values="$VPC_ID"" --query 'RouteTables[*].RouteTableId' --output text)
+aws ec2 create-route --route-table-id "$ROUTE_TABLE_ID" --destination-cidr-block 0.0.0.0/0 --gateway-id "$IGW_ID"
+
+Elastische IPv4-Adresse der Netzwerkschnittstelle zuordnen 
+echo -e "attaching $GREEN IP to network interface from webserver $NOCOLOR..."
+aws ec2 associate-address --allocation-id "$ALLOCATION_ID" --network-interface-id "$ENI_ID_WEB"
+
+```
+
+Und im Testfall funktionierte dies dann erstaunlicherweise beim ersten Mal :)
+
+![]()<img src="./GW_solution.png" width="1500" height="800">
+
+Im Screenshot ist der gesammte Testlauf vom obigen Code zusehen, wobei ich alle Befehle einzeln ausgeführt habe, um die Fehlerquelle besser identifizieren zu können.
 
 
 
