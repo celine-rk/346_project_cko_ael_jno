@@ -233,6 +233,11 @@ Und im Testfall funktionierte dies dann erstaunlicherweise beim ersten Mal :)
 ![]()<img src="./GW_solution.png" width="1500" height="800">
 
 Im Screenshot ist der gesammte Testlauf vom obigen Code zusehen, wobei ich alle Befehle einzeln ausgeführt habe, um die Fehlerquelle besser identifizieren zu können.
+# Reflexion
 
+Céline: 
+Das Projekt ansich hat mir sehr gefallen, da ich mich hier austoben konnte wie ich wollte um das Ziel möglichst zu erreichen und dies indem ich Sicherheitsaspekte berücksichtigte und versuchte womöglich keine Sicherheitskritischen Installationen beispielsweise zu implementieren. Aus technischersicht konnte ich sicherlich viel Neues lernen und mein Wissen in Bash vertiefen und lernte dabei den Aufbau einer Cloud besser kennen und kenne nun mehrere einzelne Teilschritte die benötigt werden, damit eine Automation von EC2-Instanzen in AWS funktioniert.
+Auf die Gruppenarbeit bezogen, verlief die Arbeit weniger nach Plan. Am schlechtesten verlief der Austausch untereinander, ein Beispiel dafür wäre , dass ich bei mangelhaften Informationen für die Dokumentation der Testfälle nicht weiter nachgefragt wurde und so die schriftliche Festhaltung schlichtweg hinausgezögert wurde. Gleicherhand war die Interesse schlichtweg nicht gleich. Anders formuliert wollte der Inhalt nicht verstanden werden als auch nicht erledigt werden. So kam es zumindest bei mir an. 
+Alles in Allem finde ich die Idee für diese Projektarbeit sehr toll, vorallendingen da einem sehr viel Freiheit gelassen wird, wie man dies umsetzen möchte, beispielsweise ob die Lösung ein Bash-Script sein wird oder doch ein Powershell-Script. Schade finde ich aber, dass nicht alle so begeistert an diesem Job wirken und daher die Arbeit nicht so erledigen wie gewollt und in meinem Falle abgesprochen.
 
-
+Für ein nächstes Mal werde ich mich sicherlich stärker dafür einsetzen mit anderen in einer Gruppe sein zu können, damit ich mehr Spass an der Arbeit haben kann und nicht wie jetzt beinahe alles selber machen oder die Arbeit anderer überarbeiten muss, weil der Inhalt schlichtweg inkorrekt ist. Weiter nehme ich mir vor generell stärker für mich einzustehen und mein Wille durch zu drücken, denn in dieser Gruppe hatte ich das Gefühl nicht ernst genommen worden zu sein. 
