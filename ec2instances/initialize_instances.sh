@@ -87,29 +87,50 @@ fi
 # aws ec2 authorize-security-group-ingress --group-id "$WP_SECURITY_GROUP_ID" --protocol tcp --port 22 --cidr 0.0.0.0/0  # SSH-Verbindung erlauben
 
 
-# #  Sicherheitsgruppen für die Datenbank-Instanz erstellen 
-echo -e "Creating $GREEN database security group $NOCOLOR..."
-VPC_ID="vpc-0753053a90303adba"
-echo "$VPC_ID"
-echo "DB_SECURITY_GROUP_ID=$(aws ec2 create-security-group --group-name "$DB_SECURITY_GROUP" --description "EC2-database" --vpc-id "$VPC_ID" --query 'GroupId' --output text)"
-echo "$DB_SECURITY_GROUP_ID"
-aws ec2 authorize-security-group-ingress --group-id "$DB_SECURITY_GROUP_ID" --protocol tcp --port 3306 
-aws ec2 authorize-security-group-ingress --group-id "$DB_SECURITY_GROUP_ID" --protocol tcp --port 22 
+# # #  Sicherheitsgruppen für die Datenbank-Instanz erstellen 
+# echo -e "Creating $GREEN database security group $NOCOLOR..."
+# DB_SECURITY_GROUP_ID=$(aws ec2 create-security-group --group-name "$DB_SECURITY_GROUP" --description "EC2-database" --vpc-id "$VPC_ID" --query 'GroupId' --output text)
+# aws ec2 authorize-security-group-ingress --group-id "$DB_SECURITY_GROUP_ID" --protocol tcp --port 3306 --source-group "$WP_SECURITY_GROUP_ID"
+# aws ec2 authorize-security-group-ingress --group-id "$DB_SECURITY_GROUP_ID" --protocol tcp --port 22 --source-group "$WP_SECURITY_GROUP_ID"
 
-
-# # Elastic Network Interface (ENI) für die Datenbank-Instanz erstellen
+# Elastic Network Interface (ENI) für die Datenbank-Instanz erstellen
 # echo -e "Creating $GREEN network interface for database instance $NOCOLOR..."
-# SUBNET_ID="subnet-0259268a4b29d63bf"
 # ENI_ID_DB=$(aws ec2 create-network-interface --subnet-id "$SUBNET_ID" --private-ip-address "$DB_PRIVATE_IP" --groups "$DB_SECURITY_GROUP_ID" --query 'NetworkInterface.NetworkInterfaceId' --output text)
 
-# # Elastic Network Interface (ENI) für die Datenbank-Instanz erstellen
+# # # Elastic Network Interface (ENI) für die Webserver-Instanz erstellen
 # echo -e "Creating $GREEN network interface for webserver instance $NOCOLOR..."
-# ENI_ID_WEB=$(aws ec2 create-network-interface --subnet-id "$SUBNET_ID" --groups "$WP_SECURITY_GROUP_ID" --associate-public-ip-address --query 'NetworkInterface.NetworkInterfaceId' --output text)
 
+# # Elastische IPv4-Adresse erstellen
+# echo -e "Creating $GREEN elastic IPv4 for webserver-instance $NOCOLOR..."
+# ALLOCATION_ID=$(aws ec2 allocate-address --domain vpc --query 'AllocationId' --output text)
 
-# # AWS EC2-Datenbankinstanz erstellen und ENI zuweisen
-# echo -e "Creating $GREEN database instance $NOCOLOR..."
-# aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" --key-name "$KEY_NAME" --network-interfaces "NetworkInterfaceId="$ENI_ID_DB",DeviceIndex=0" --user-data file://cloudconfig-db.yaml --no-associate-public-ip-address --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$DB_INSTANCE_NAME}]"
+# # Netzwerkschnittstelle erstellen (inklusive Zuordnung der elastischen IPv4-Adresse)
+# echo -e "Creating $GREEN network interface for webserver instance $NOCOLOR..."
+# ENI_ID_WEB=$(aws ec2 create-network-interface --subnet-id "$SUBNET_ID" --groups "$WP_SECURITY_GROUP_ID"  --query 'NetworkInterface.NetworkInterfaceId' --output text)
+
+# # Internet GW erstellen
+# echo -e "Creating $GREEN internet GW $NOCOLOR..."
+# IGW_ID=$(aws ec2 create-internet-gateway --query 'InternetGateway.InternetGatewayId' --output text)
+
+# # GW an VPC attachen
+# echo -e "attaching $GREEN GW to VPC $NOCOLOR..."
+# aws ec2 attach-internet-gateway --internet-gateway-id "$IGW_ID" --vpc-id "$VPC_ID"
+
+# # Routing Tabelle abfragen (für die ID) und anschliessend dem GW anpassen
+# echo -e "Updating $GREEN Routing Tables $NOCOLOR..."
+# ROUTE_TABLE_ID=$(aws ec2 describe-route-tables --filters "Name=vpc-id,Values="$VPC_ID"" --query 'RouteTables[*].RouteTableId' --output text)
+# aws ec2 create-route --route-table-id "$ROUTE_TABLE_ID" --destination-cidr-block 0.0.0.0/0 --gateway-id "$IGW_ID"
+
+# # Elastische IPv4-Adresse der Netzwerkschnittstelle zuordnen (Kommunikation nach aussen für Webserver)
+# echo -e "attaching $GREEN IP to network interface from webserver $NOCOLOR..."
+# aws ec2 associate-address --allocation-id "$ALLOCATION_ID" --network-interface-id "$ENI_ID_WEB"
+
+# TEST HERE
+# AWS EC2-Datenbankinstanz erstellen und ENI zuweisen
+echo -e "Creating $GREEN database instance $NOCOLOR..."
+ENI_ID_DB="eni-07463dddcffab6e41"
+SUBNET_ID="subnet-0259268a4b29d63bf"
+aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" --key-name "$KEY_NAME" --network-interfaces "NetworkInterfaceId="$ENI_ID_DB",DeviceIndex=0" --user-data file://cloudconfig-db.yaml --no-associate-public-ip-address --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$DB_INSTANCE_NAME}]"
 
 # # ID der Datenbankinstanz abrufen
 # DB_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$DB_INSTANCE_NAME" --query 'Reservations[0].Instances[0].InstanceId' --output text --region "$REGION")
