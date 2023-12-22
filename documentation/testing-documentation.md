@@ -50,7 +50,19 @@ Die Ursache dazu waren die erforderlichen Anführungszeichen um die Variable **I
 Der Wert, den die Variable Image-ID erhalten sollte, wurde nicht richtig übergeben. Dies kann dazu führen, dass die Bash-Shell die Informationen nicht richtig parsen konnte.
 
 ## Testfall3
+Die Fehlermeldungen weisen auf mehrere Probleme beim Verwenden der AWS Command Line Interface hin.
+
 ![]()<img src="./Testfall3.png" width="900" height="300">
+
+Ein Problem besteht darin, dass beim Parsen des Parameters '--user-data' die Datei 'apache.txt' nicht gefunden werden kann. Es ist wichtig sicherzustellen, dass die Datei im angegebenen Pfad existiert und lesbar ist. Alternativ kann der vollständige Pfad zur Datei verwendet oder das aktuelle Verzeichnis entsprechend angepasst werden.
+
+Zusätzlich wird ein Fehler beim Warten auf das Starten einer Instanz gemeldet, der auf ein fehlendes Instanz-ID-Parameter hinweist. Wichtig ist es, dass die Instanz-ID korrekt im Befehl angegeben wird.
+
+Des Weiteren gibt es einen Fehler beim Aufrufen der Instanzbeschreibungsoperation, bei dem erneut die Instanz-ID fehlt. Hier sollte die Instanz-ID im Befehl zur Instanzbeschreibung berücksichtigt werden.
+
+Im Bash-Skript 'updates_e253_1.sh' gibt es zwei Fehler. In Zeile 129 liegt ein unerwartetes Dateiende vor (EOF), während in Zeile 130 ein Syntaxfehler auftritt. Notwendig ist es, diese Zeilen auf mögliche Syntaxfehler zu überprüfen und sicherzustellen, dass sie vollständig sind.
+
+Nachdem diese Aspekte überprüft und korrigiert wurden, können die AWS-CLI-Befehle erneut ausgeführt werden. Es ist ebenfalls wichtig zu beachten, ob das Pipe-Symbol (|) in der Shell-Prompt-Ausgabe beabsichtigt ist oder möglicherweise auf einen Tippfehler hinweist. Nach diesen Schritten sollten die Fehler behoben sein, und die Aktionen sollten wie erwartet durchgeführt werden können.
 
 ## DB-Secgroup in Netzwerkinterface
 - Testzeitpunkt: 18.12.23
