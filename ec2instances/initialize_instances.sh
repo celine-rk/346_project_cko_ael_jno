@@ -132,7 +132,7 @@ aws ec2 wait instance-running --instance-ids "$DB_INSTANCE_ID" --region "$REGION
 # AWS Webserver/WordPress-Instanz erstellen und Network interface zu weisen
 aws ec2 run-instances --region "$REGION" --image-id "$IMAGE_ID" --instance-type "$INSTANCE_TYPE" --key-name "$KEY_NAME" --network-interfaces "NetworkInterfaceId="$ENI_ID_WEB",DeviceIndex=0" --user-data file://cloudconfig-web.yaml --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value="$WP_INSTANCE_NAME"}]"
 
-ID der Webserverinstanz abrufen
+# ID der Webserverinstanz abrufen
 WP_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values="$WP_INSTANCE_NAME"" --query 'Reservations[0].Instances[0].InstanceId' --output text --region "$REGION")
 
 # Warten, bis die Webserverinstanz läuft
