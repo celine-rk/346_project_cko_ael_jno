@@ -69,6 +69,8 @@ fi
 echo -e "Creating a new SSH key-pair..."
 aws ec2 create-key-pair --key-name "$KEY_NAME" --key-type rsa --query "KeyMaterial" --output text > "$KEY_NAME.pem"
 
+chmod 700 "$KEY_NAME.pem"
+
 # Neues VPC erstellen und deren ID in Variable VPC_ID hinzufügen
 echo -e "create $GREEN new vpc $NOCOLOR....."
 
