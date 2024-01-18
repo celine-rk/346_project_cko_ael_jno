@@ -12,12 +12,6 @@ write_files:
       [mysqld]
       bind-address = 172.31.10.15
       log-error = /var/log/mysql/error.log
-  - path: /etc/apache2/sites-available/wordpress.conf
-    content: |
-      <VirtualHost *:80>
-        DocumentRoot /var/www/html
-        ServerName 172.31.10.15
-      </VirtualHost>
 
 runcmd:
   - systemctl restart mariadb
