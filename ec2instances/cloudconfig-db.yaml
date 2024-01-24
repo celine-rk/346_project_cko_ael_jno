@@ -3,18 +3,9 @@ package_update: true
 package_upgrade: true
 package_reboot_if_required: true
 timezone: Europe/Zurich
-packages:
-  - mariadb-server
-
-write_files:
-  - path: /etc/mysql/mariadb.conf.d/50-server.cnf
-    content: |
-      [mysqld]
-      bind-address = 172.31.10.15
-      log-error = /var/log/mysql/error.log
 
 runcmd:
-  - systemctl restart mariadb
+  - sudo apt install mysql-server -y
 
   # Erstellen eines sicheren Root-Passworts
   - MYSQL_ROOT_PASSWORD=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 54)
@@ -24,5 +15,12 @@ runcmd:
   - mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "CREATE USER 'wpuser'@'%' IDENTIFIED BY 'X4#L6LwrN4V!w4&m^6pH98Li';"
   - mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL PRIVILEGES ON *.* TO 'wpuser'@'%';"
   - mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "FLUSH PRIVILEGES;"
+  
+write_files:
+  - path: /etc/mysql/mysql.conf.d/mysqld.cnf
+    content: |
+      [mysqld]
+      bind-address = 172.31.10.15
+      log-error = /var/log/mysql/error.log
 
 final_message: "Datenbank-Instanz wurde konfiguriert. Root-Passwort: $MYSQL_ROOT_PASSWORD"
